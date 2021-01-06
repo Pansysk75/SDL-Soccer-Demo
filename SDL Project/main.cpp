@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <SDL\SDL.h>
 #include <GL\glew.h>
+#include <assimp/Importer.hpp>
 #include <stdio.h>
 
 //Screen dimension constants
