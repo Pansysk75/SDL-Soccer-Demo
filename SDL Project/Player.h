@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
 
@@ -14,6 +16,9 @@ class Player
 {
 	
 	glm::vec3 position;
+
+	glm::vec3 cameraPosition;
+	glm::mat4x4 cameraProjection;
 	
 	Mesh mesh;
 	unsigned int VAO;
