@@ -5,6 +5,8 @@
 #include <assimp/Importer.hpp>
 #include <stdio.h>
 
+#include "Player.h"
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -27,6 +29,8 @@ int main(int argc, char* args[])
 
      if (glewInit() != GLEW_OK) printf("Couldn't init glew");
         
+     Player player;
+     player.LoadMesh();
 
        //Event handler
        SDL_Event e;
