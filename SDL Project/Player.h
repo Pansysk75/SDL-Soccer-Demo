@@ -16,6 +16,9 @@ class Player
 	glm::vec3 position;
 	
 	Mesh mesh;
+	unsigned int VAO;
+	unsigned int VBO;
+
 
 	//texture
 	std::vector<float> textureCoordinates;

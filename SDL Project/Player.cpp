@@ -1,4 +1,6 @@
 #include "Player.h"
+#include <GL\glew.h>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -47,8 +49,31 @@ void Player::LoadMesh(){
 		aiMesh* aiMesh = scene->mMeshes[0];
 		LoadAiMesh(this->mesh, aiMesh);
 
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+		
+		//prepare raw data
+		std::vector<float> vertexData;
+		vertexData.reserve(mesh.vertices.size() * 3);
+		for (auto vertex : mesh.vertices) {
+			vertexData.push_back(vertex.x);
+			vertexData.push_back(vertex.y);
+			vertexData.push_back(vertex.z);
+		}
+
+		glGenVertexArrays(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData.data(), GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
 	}
+}
+
+void Player::Render() {
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.vertices.size());
 }
 
 

@@ -45,12 +45,7 @@ int main(int argc, char* args[])
 
            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-           glBegin(GL_TRIANGLES);
-           glColor3f(0.8f, 0.3f, 0.3f);
-           glVertex2f(0, 0);
-           glVertex2f(-0.1f, -0.1f);
-           glVertex2f(0, 0.1f);
-           glEnd();
+           player.Render();
 
 
            SDL_GL_SwapWindow(window);
