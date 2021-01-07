@@ -32,8 +32,8 @@ class Player
 	unsigned int fragmentShader;
 	unsigned int shaderProgram;
 
-	float glossAmount;
-	float diffAmount;
+	float specularAmount;
+	float diffuseAmount;
 
 
 	//texture

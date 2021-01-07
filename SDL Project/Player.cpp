@@ -85,6 +85,7 @@ void Player::LoadMesh(){
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 
 		//prepare raw data
 		std::vector<unsigned int> indexData;
@@ -126,29 +127,37 @@ void Player::LoadMesh(){
 			"in vec3 vertexPos;\n"
 
 			"uniform sampler2D ourTexture;\n"
-			"uniform float glossAmount;\n"
-			"uniform float diffAmount;\n"
+			"uniform float specularAmount;\n"
+			"uniform float diffuseAmount;\n"
 			"void main()\n"
 			"{\n"
-			"  vec3 redLightDir = vec3(-1, 0, 0);\n"
-			"  vec3 greenLightDir = vec3(0, -1, 0);\n"
-			"  vec3 blueLightDir = vec3(0, 0, -1);\n"
+			"  vec3 L1Dir = normalize(vec3(0.2, 0, 0.0));\n"
+			"  vec3 L2Dir = normalize(vec3(-1, -0.7, -1));\n"
+			"  vec3 L3Dir = vec3(0, 0, -1);\n"
 
-			"  vec4 redLightDiff = vec4(1,0,0,0) *  max(dot(Normal, -redLightDir), 0.0);\n"
-			"  vec4 greenLightDiff = vec4(0,1,0,0) *max(dot(Normal, -greenLightDir), 0.0);\n"
-			"  vec4 blueLightDiff = vec4(0,0,1,0) * max(dot(Normal, -blueLightDir), 0.0);\n"
+			"  vec4 L1Color = vec4(1, 0.3, 0.3, 1);\n"
+			"  vec4 L2Color = vec4(1, 1, 1, 1);\n"
+			"  vec4 L3Color = vec4(0, 0, 0, 1);\n"
 
-			"  vec3 cameraToVertex = normalize(vertexPos - vec3(0,0,0));\n"
-			"  vec4 redLightGloss = vec4(1,0,0,0) *	  max( dot(Normal, normalize(cameraToVertex - redLightDir)), 0.0 );\n"
-			"  vec4 greenLightGloss = vec4(0,1,0,0) * max( dot(Normal, normalize(cameraToVertex - greenLightDir)), 0.0 );\n"
-			"  vec4 blueLightGloss = vec4(0,0,1,0) *  max( dot(Normal, normalize(cameraToVertex - blueLightDir)), 0.0 );\n"
+			"  vec4 L1Diffuse = L1Color *  max(dot(Normal, -L1Dir), 0.0);\n"
+			"  vec4 L2Diffuse = L2Color *  max(dot(Normal, -L2Dir), 0.0);\n"
+			"  vec4 L3Diffuse = L3Color *  max(dot(Normal, -L3Dir), 0.0);\n"
+
+			"  vec3 viewPos = vec3(0,0,0);\n"
+			"  vec3 viewDir = normalize(viewPos - vertexPos);\n"
+			"  vec3 reflectDir = reflect(-L1Dir, Normal);\n"
+
+			"  vec4 L1Specular = L1Color * pow(	max( dot(viewDir, reflect(-L1Dir, Normal)), 0.0 ), 4);\n"
+			"  vec4 L2Specular = L2Color * pow( max( dot(viewDir, reflect(-L2Dir, Normal)), 0.0 ), 4);\n"
+			"  vec4 L3Specular = L3Color * pow( max( dot(viewDir, reflect(-L3Dir, Normal)), 0.0 ), 4);\n"
 			" \n"
 			//"  vec4 amb = 0.2f * texture(ourTexture, TexCoord);\n"
-			//"  FragColor = texture(ourTexture, TexCoord) + amb + vec4(right, up, front, 0.0);\n"
-			"vec4 diff = redLightDiff + greenLightDiff + blueLightDiff;\n"
-			"vec4 gloss = redLightGloss + greenLightGloss + blueLightGloss;\n"
-			//"vec4 gloss = max()\n"
-			"  FragColor = diffAmount* diff + glossAmount*gloss;\n"
+
+			"vec4 diffuse = texture(ourTexture, TexCoord) * (L1Diffuse + L2Diffuse + L3Diffuse);\n"
+			"vec4 specular = L1Specular + L2Specular + L3Specular;\n"
+
+			"  FragColor = diffuseAmount* diffuse + specularAmount*specular;\n"
+			//"  FragColor =texture(ourTexture, TexCoord);\n "
 			"}\0";
 
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -193,6 +202,7 @@ void Player::LoadMesh(){
 
 
 		int width, height, nrChannels;
+		stbi_set_flip_vertically_on_load(true);
 		unsigned char* data = stbi_load("C:/Users/George/Desktop/Panagis/Coding/SDL Project/Assets/Player.png", &width, &height, &nrChannels, 0);
 		if (!data) std::cout << "Failed to load Player texture" << std::endl;
 		
@@ -221,7 +231,7 @@ void Player::Render() {
 
 	
 	//update camera
-	glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)1920 / (float)1080, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)1920 / (float)1080, 0.1f, 100.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0, 0, -3));
 	glm::mat4 model = glm::mat4(1.0f);
@@ -239,10 +249,10 @@ void Player::Render() {
 	glUniformMatrix4fv(loc_vertexMatrix, 1, GL_FALSE, glm::value_ptr(vertexMatrix));
 	glUniformMatrix4fv(loc_normalMatrix, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-	unsigned int loc_glossAmount = glGetUniformLocation(shaderProgram, "glossAmount");
-	unsigned int loc_diffAmount = glGetUniformLocation(shaderProgram, "diffAmount");
-	glUniform1f(loc_glossAmount, glossAmount);
-	glUniform1f(loc_diffAmount, diffAmount);
+	unsigned int loc_specularAmount = glGetUniformLocation(shaderProgram, "specularAmount");
+	unsigned int loc_diffuseAmount = glGetUniformLocation(shaderProgram, "diffuseAmount");
+	glUniform1f(loc_specularAmount, specularAmount);
+	glUniform1f(loc_diffuseAmount, diffuseAmount);
 
 	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE0);
@@ -251,8 +261,8 @@ void Player::Render() {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawArrays(GL_TRIANGLES, 0, mesh.vertices.size()*3);
-	//glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, mesh.vertices.size()*3);
+	glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
 	
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
@@ -270,14 +280,16 @@ void Player::Update(float dt) {
 	if (keyboard[SDL_SCANCODE_DOWN]) position += glm::vec3(0, -1, 0) * dt;
 	if (keyboard[SDL_SCANCODE_RIGHT]) position += glm::vec3(1, 0, 0) * dt;
 	if (keyboard[SDL_SCANCODE_LEFT]) position += glm::vec3(-1, 0, 0) * dt;
+	if (keyboard[SDL_SCANCODE_W]) position += glm::vec3(0, 0, -1) * dt;
+	if (keyboard[SDL_SCANCODE_S]) position += glm::vec3(0, 0, 1) * dt;
 	if (keyboard[SDL_SCANCODE_D]) rotation += glm::vec3(1, 0, 0) * dt;
 	if (keyboard[SDL_SCANCODE_A]) rotation += glm::vec3(-1, 0, 0) * dt;
 
-	if (keyboard[SDL_SCANCODE_PAGEUP]) { glossAmount += dt; std::cout <<"Gloss: "<< glossAmount << std::endl;}
-	if (keyboard[SDL_SCANCODE_PAGEDOWN]) { glossAmount -= dt; std::cout <<"Gloss: "<< glossAmount << std::endl;}
+	if (keyboard[SDL_SCANCODE_PAGEUP]) {   specularAmount += dt; std::cout <<"Specular: "<< specularAmount << std::endl;}
+	if (keyboard[SDL_SCANCODE_PAGEDOWN]) { specularAmount -= dt; std::cout <<"Specular: "<< specularAmount << std::endl;}
 
-	if (keyboard[SDL_SCANCODE_HOME]) {   diffAmount += dt; std::cout <<   "Diff: " << diffAmount << std::endl; }
-	if (keyboard[SDL_SCANCODE_END]) { diffAmount -= dt; std::cout << "Diff: " << diffAmount << std::endl; }
+	if (keyboard[SDL_SCANCODE_HOME]) {   diffuseAmount += dt; std::cout <<   "Diffuse: " << diffuseAmount << std::endl; }
+	if (keyboard[SDL_SCANCODE_END]) {    diffuseAmount -= dt; std::cout <<   "Diffuse: " << diffuseAmount << std::endl; }
 	
 }
 
