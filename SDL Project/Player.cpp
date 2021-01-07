@@ -106,6 +106,7 @@ void Player::LoadMesh(){
 			"layout (location = 2) in vec2 aTexCoord;\n"
 			"out vec3 Normal;\n"
 			"out vec2 TexCoord;\n"
+			"out vec3 vertexPos;\n"
 			"uniform mat4 vertexMatrix;\n"
 			"uniform mat4 normalMatrix;\n"
 		
@@ -114,22 +115,40 @@ void Player::LoadMesh(){
 			"{\n"
 			"   gl_Position =vertexMatrix * vec4(aPos, 1.0);\n"
 			"   TexCoord = aTexCoord;\n"
-			"   Normal = vec3(normalMatrix*vec4(aNorm , 0.0));\n"
+			"   Normal = normalize(vec3(normalMatrix*vec4(aNorm , 0.0)));\n"
+			"   vertexPos = vec3(gl_Position);\n"
 			"}\0";
 		
 		const char* fragmentShaderSource = "#version 330 core\n"
 			"out vec4 FragColor;\n"
 			"in vec3 Normal;\n"
 			"in vec2 TexCoord;\n"
+			"in vec3 vertexPos;\n"
+
 			"uniform sampler2D ourTexture;\n"
+			"uniform float glossAmount;\n"
+			"uniform float diffAmount;\n"
 			"void main()\n"
 			"{\n"
-			"  float front = max(dot(Normal, vec3(0, 0, -1)), 0.0);\n"
-			"  float right = max(dot(Normal, vec3(-1, 0, 0)), 0.0);\n"
-			"  float up =	 max(dot(Normal, vec3(0, -1, 0)), 0.0);\n"
+			"  vec3 redLightDir = vec3(-1, 0, 0);\n"
+			"  vec3 greenLightDir = vec3(0, -1, 0);\n"
+			"  vec3 blueLightDir = vec3(0, 0, -1);\n"
+
+			"  vec4 redLightDiff = vec4(1,0,0,0) *  max(dot(Normal, -redLightDir), 0.0);\n"
+			"  vec4 greenLightDiff = vec4(0,1,0,0) *max(dot(Normal, -greenLightDir), 0.0);\n"
+			"  vec4 blueLightDiff = vec4(0,0,1,0) * max(dot(Normal, -blueLightDir), 0.0);\n"
+
+			"  vec3 cameraToVertex = normalize(vertexPos - vec3(0,0,0));\n"
+			"  vec4 redLightGloss = vec4(1,0,0,0) *	  max( dot(Normal, normalize(cameraToVertex - redLightDir)), 0.0 );\n"
+			"  vec4 greenLightGloss = vec4(0,1,0,0) * max( dot(Normal, normalize(cameraToVertex - greenLightDir)), 0.0 );\n"
+			"  vec4 blueLightGloss = vec4(0,0,1,0) *  max( dot(Normal, normalize(cameraToVertex - blueLightDir)), 0.0 );\n"
+			" \n"
 			//"  vec4 amb = 0.2f * texture(ourTexture, TexCoord);\n"
 			//"  FragColor = texture(ourTexture, TexCoord) + amb + vec4(right, up, front, 0.0);\n"
-			"  FragColor = 0.5 *vec4(right, up, front, 0.0);\n"
+			"vec4 diff = redLightDiff + greenLightDiff + blueLightDiff;\n"
+			"vec4 gloss = redLightGloss + greenLightGloss + blueLightGloss;\n"
+			//"vec4 gloss = max()\n"
+			"  FragColor = diffAmount* diff + glossAmount*gloss;\n"
 			"}\0";
 
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -209,8 +228,9 @@ void Player::Render() {
 	model = glm::translate(model, position);
 	model = glm::rotate(model, rotation.x, glm::vec3(0, 1, 0));
 	
-	glm::mat4 vertexMatrix = projection * view * model;
+	glm::mat4 vertexMatrix = view * model;
 	glm::mat4 normalMatrix = glm::inverseTranspose(vertexMatrix);
+	vertexMatrix = projection * vertexMatrix;
 
 	unsigned int loc_vertexMatrix = glGetUniformLocation(shaderProgram, "vertexMatrix");
 	unsigned int loc_normalMatrix = glGetUniformLocation(shaderProgram, "normalMatrix");
@@ -218,6 +238,11 @@ void Player::Render() {
 
 	glUniformMatrix4fv(loc_vertexMatrix, 1, GL_FALSE, glm::value_ptr(vertexMatrix));
 	glUniformMatrix4fv(loc_normalMatrix, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+	unsigned int loc_glossAmount = glGetUniformLocation(shaderProgram, "glossAmount");
+	unsigned int loc_diffAmount = glGetUniformLocation(shaderProgram, "diffAmount");
+	glUniform1f(loc_glossAmount, glossAmount);
+	glUniform1f(loc_diffAmount, diffAmount);
 
 	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE0);
@@ -247,5 +272,12 @@ void Player::Update(float dt) {
 	if (keyboard[SDL_SCANCODE_LEFT]) position += glm::vec3(-1, 0, 0) * dt;
 	if (keyboard[SDL_SCANCODE_D]) rotation += glm::vec3(1, 0, 0) * dt;
 	if (keyboard[SDL_SCANCODE_A]) rotation += glm::vec3(-1, 0, 0) * dt;
+
+	if (keyboard[SDL_SCANCODE_PAGEUP]) { glossAmount += dt; std::cout <<"Gloss: "<< glossAmount << std::endl;}
+	if (keyboard[SDL_SCANCODE_PAGEDOWN]) { glossAmount -= dt; std::cout <<"Gloss: "<< glossAmount << std::endl;}
+
+	if (keyboard[SDL_SCANCODE_HOME]) {   diffAmount += dt; std::cout <<   "Diff: " << diffAmount << std::endl; }
+	if (keyboard[SDL_SCANCODE_END]) { diffAmount -= dt; std::cout << "Diff: " << diffAmount << std::endl; }
+	
 }
 

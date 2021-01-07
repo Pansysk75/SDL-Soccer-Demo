@@ -32,6 +32,9 @@ class Player
 	unsigned int fragmentShader;
 	unsigned int shaderProgram;
 
+	float glossAmount;
+	float diffAmount;
+
 
 	//texture
 	std::vector<float> textureCoordinates;
