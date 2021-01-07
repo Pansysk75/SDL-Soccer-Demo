@@ -4,6 +4,8 @@
 #include <GL\glew.h>
 #include <assimp/Importer.hpp>
 #include <stdio.h>
+#include <iostream>
+#include <chrono>
 
 #include "Player.h"
 
@@ -33,23 +35,36 @@ int main(int argc, char* args[])
      player.LoadMesh();
 
        //Event handler
-       SDL_Event e;
+       SDL_Event event;
+       
+       auto previousTime = std::chrono::steady_clock::now();
+       glEnable(GL_DEPTH_TEST);
+
+
        //While application is running
        while (true)
        {
            //Handle events on queue
-           while (SDL_PollEvent(&e) != 0)
+           while (SDL_PollEvent(&event) != 0)
            {
-               if (e.type == SDL_QUIT) SDL_Quit();
+               if (event.type == SDL_QUIT) SDL_Quit();
            }
 
            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+           float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - previousTime).count() * 0.000000001f;
+           previousTime = std::chrono::steady_clock::now();
+
+
+           player.Update(dt);
            player.Render();
 
 
            SDL_GL_SwapWindow(window);
        }
+
+
         
     
     //Destroy window
