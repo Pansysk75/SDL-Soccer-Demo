@@ -14,14 +14,11 @@ void LoadAiMesh(Mesh& mesh, aiMesh* aiMesh) {
 
 	for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
 		auto aiVertex = aiMesh->mVertices[i];
-		mesh.vertices.push_back(aiVertex.x);
-		mesh.vertices.push_back(aiVertex.y);
-		mesh.vertices.push_back(aiVertex.z);
+		mesh.vertices.emplace_back(glm::vec3(aiVertex.x, aiVertex.y, aiVertex.z));
 
 		auto aiNormals = aiMesh->mNormals[i];
-		mesh.normals.push_back(aiNormals.x);
-		mesh.normals.push_back(aiNormals.y);
-		mesh.normals.push_back(aiNormals.z);
+		mesh.normals.emplace_back(glm::vec3(aiNormals.x, aiNormals.y, aiNormals.z));
+
 	}
 
 	mesh.indices.clear();

@@ -4,9 +4,9 @@
 
 
 struct Mesh {
-	std::vector<float> vertices;
+	std::vector<glm::vec3> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<float> normals;
+	std::vector<glm::vec3> normals;
 };
 
 
