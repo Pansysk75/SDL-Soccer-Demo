@@ -18,6 +18,11 @@ class Player
 	Mesh mesh;
 	unsigned int VAO;
 	unsigned int VBO;
+	unsigned int EBO; //element buffer object -> indices
+
+	unsigned int vertexShader;
+	unsigned int fragmentShader;
+	unsigned int shaderProgram;
 
 
 	//texture
