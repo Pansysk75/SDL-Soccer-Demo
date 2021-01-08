@@ -141,8 +141,8 @@ void Player::LoadMesh(){
 			"  vec3 L2Dir = normalize(vec3(-1, -0.7, -1));\n"
 			"  vec3 L3Dir = vec3(0, 0, -1);\n"
 
-			"  vec4 L1Color = vec4(0.0, 0.4, 0.4, 1);\n"
-			"  vec4 L2Color = vec4(1, 1, 1, 1);\n"
+			"  vec4 L1Color = vec4(0.0, 0.2, 0.4, 1);\n"
+			"  vec4 L2Color = vec4(0.7, 0.8, 1, 1);\n"
 			"  vec4 L3Color = vec4(0, 0, 0, 1);\n"
 
 			"  vec4 L1Diffuse = L1Color *  max(dot(Normal, -L1Dir), 0.0);\n"
