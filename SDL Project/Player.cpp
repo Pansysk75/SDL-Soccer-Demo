@@ -8,6 +8,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <iostream>
+#include <filesystem>
+#include <string>
 
 
 
@@ -44,9 +46,11 @@ void LoadAiMesh(Mesh& mesh, aiMesh* aiMesh) {
 
 void Player::LoadMesh(){
 	
+	std::string modelPath = std::filesystem::current_path().parent_path().string() + "\\Assets\\Player.obj";
+
 	Assimp::Importer importer;
 	
-	const aiScene* scene = importer.ReadFile("C:/Users/George/Desktop/Panagis/Coding/SDL Project/Assets/Player.obj", 
+	const aiScene* scene = importer.ReadFile(modelPath, 
 		aiProcess_Triangulate || aiProcess_PreTransformVertices 
 		|| aiProcess_OptimizeMeshes 
 		|| aiProcess_OptimizeGraph);
@@ -203,7 +207,8 @@ void Player::LoadMesh(){
 
 		int width, height, nrChannels;
 		stbi_set_flip_vertically_on_load(true);
-		unsigned char* data = stbi_load("C:/Users/George/Desktop/Panagis/Coding/SDL Project/Assets/Player.png", &width, &height, &nrChannels, 0);
+		std::string texturePath = std::filesystem::current_path().parent_path().string() + "\\Assets\\Player.png";
+		unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data) std::cout << "Failed to load Player texture" << std::endl;
 		
 		glGenTextures(1, &texture);
