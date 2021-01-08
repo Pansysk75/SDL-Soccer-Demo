@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
+#include "Skybox.h"
 
 struct Mesh {
 	std::vector<glm::vec3> vertices;
@@ -28,6 +29,7 @@ class Player
 	unsigned int EBO; //element buffer object -> indices
 	unsigned int texture;
 
+	Skybox skybox;
 
 	unsigned int vertexShader;
 	unsigned int fragmentShader;

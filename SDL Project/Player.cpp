@@ -137,11 +137,11 @@ void Player::LoadMesh(){
 			"uniform float diffuseAmount;\n"
 			"void main()\n"
 			"{\n"
-			"  vec3 L1Dir = normalize(vec3(0.2, 0, 0.0));\n"
+			"  vec3 L1Dir = normalize(vec3(1, 0, 0.0));\n"
 			"  vec3 L2Dir = normalize(vec3(-1, -0.7, -1));\n"
 			"  vec3 L3Dir = vec3(0, 0, -1);\n"
 
-			"  vec4 L1Color = vec4(1, 0.3, 0.3, 1);\n"
+			"  vec4 L1Color = vec4(0.0, 0.4, 0.4, 1);\n"
 			"  vec4 L2Color = vec4(1, 1, 1, 1);\n"
 			"  vec4 L3Color = vec4(0, 0, 0, 1);\n"
 
@@ -151,11 +151,10 @@ void Player::LoadMesh(){
 
 			//"  vec3 viewDir = normalize(cameraPosition - vertexPos);\n"
 			"  vec3 viewDir = normalize( cameraPosition - vertexPos);\n"
-			"  vec3 reflectDir = reflect(-L1Dir, Normal);\n"
 
-			"  vec4 L1Specular = L1Color * pow(	max( dot(viewDir, reflect(-L1Dir, Normal)), 0.0 ), 4);\n"
-			"  vec4 L2Specular = L2Color * pow( max( dot(viewDir, reflect(-L2Dir, Normal)), 0.0 ), 4);\n"
-			"  vec4 L3Specular = L3Color * pow( max( dot(viewDir, reflect(-L3Dir, Normal)), 0.0 ), 4);\n"
+			"  vec4 L1Specular = L1Color * pow(	max( dot(viewDir, reflect(L1Dir, Normal)), 0.0 ), 8);\n"
+			"  vec4 L2Specular = L2Color * pow( max( dot(viewDir, reflect(L2Dir, Normal)), 0.0 ), 8);\n"
+			"  vec4 L3Specular = L3Color * pow( max( dot(viewDir, reflect(L3Dir, Normal)), 0.0 ), 8);\n"
 			" \n"
 			//"  vec4 amb = 0.2f * texture(ourTexture, TexCoord);\n"
 
@@ -185,7 +184,6 @@ void Player::LoadMesh(){
 		int  success;
 		char infoLog[512];
 
-
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
@@ -206,27 +204,34 @@ void Player::LoadMesh(){
 
 		}
 
-
+		//PLAYER TEXTURE
 		int width, height, nrChannels;
 		stbi_set_flip_vertically_on_load(true);
 		std::string texturePath = std::filesystem::current_path().parent_path().string() + "\\Assets\\Player.png";
 		unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data) std::cout << "Failed to load Player texture" << std::endl;
+		else {
+			glGenTextures(1, &texture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glUseProgram(shaderProgram);
+			glUniform1i(glGetUniformLocation(shaderProgram, "texture"), 0);
+
+			stbi_image_free(data);
+		}
+
+
+		skybox.Load();
+
 		
-		glGenTextures(1, &texture);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
 
-		glUseProgram(shaderProgram);
-		glUniform1i(glGetUniformLocation(shaderProgram, "texture"), 0);
-
-		stbi_image_free(data);
 	}
 
 
@@ -251,6 +256,10 @@ void Player::Render() {
 	glm::mat4 normalMatrix = glm::inverseTranspose(model);
 	glm::mat4 viewMatrix = projection * view * model;;
 
+	skybox.Render(projection * glm::mat4(glm::mat3(view)) );
+	//skybox.Render(view  * projection);
+
+	glUseProgram(shaderProgram);
 	unsigned int loc_viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
 	unsigned int loc_normalMatrix = glGetUniformLocation(shaderProgram, "normalMatrix");
 	unsigned int loc_modelMatrix = glGetUniformLocation(shaderProgram, "modelMatrix");
@@ -269,7 +278,7 @@ void Player::Render() {
 	glUniform1f(loc_specularAmount, specularAmount);
 	glUniform1f(loc_diffuseAmount, diffuseAmount);
 
-	glUseProgram(shaderProgram);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
