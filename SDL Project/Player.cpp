@@ -112,16 +112,17 @@ void Player::LoadMesh(){
 			"out vec3 Normal;\n"
 			"out vec2 TexCoord;\n"
 			"out vec3 vertexPos;\n"
-			"uniform mat4 vertexMatrix;\n"
+			"uniform mat4 viewMatrix;\n"
 			"uniform mat4 normalMatrix;\n"
+			"uniform mat4 modelMatrix;\n"
 		
 
 			"void main()\n"
 			"{\n"
-			"   gl_Position =vertexMatrix * vec4(aPos, 1.0);\n"
+			"   gl_Position =viewMatrix * vec4(aPos, 1.0);\n"
 			"   TexCoord = aTexCoord;\n"
 			"   Normal = normalize(vec3(normalMatrix*vec4(aNorm , 0.0)));\n"
-			"   vertexPos = vec3(gl_Position);\n"
+			"   vertexPos = vec3( modelMatrix * vec4(aPos, 1.0) );\n"
 			"}\0";
 		
 		const char* fragmentShaderSource = "#version 330 core\n"
@@ -129,6 +130,7 @@ void Player::LoadMesh(){
 			"in vec3 Normal;\n"
 			"in vec2 TexCoord;\n"
 			"in vec3 vertexPos;\n"
+			"uniform vec3 cameraPosition;\n"
 
 			"uniform sampler2D ourTexture;\n"
 			"uniform float specularAmount;\n"
@@ -147,8 +149,8 @@ void Player::LoadMesh(){
 			"  vec4 L2Diffuse = L2Color *  max(dot(Normal, -L2Dir), 0.0);\n"
 			"  vec4 L3Diffuse = L3Color *  max(dot(Normal, -L3Dir), 0.0);\n"
 
-			"  vec3 viewPos = vec3(0,0,0);\n"
-			"  vec3 viewDir = normalize(viewPos - vertexPos);\n"
+			//"  vec3 viewDir = normalize(cameraPosition - vertexPos);\n"
+			"  vec3 viewDir = normalize( cameraPosition - vertexPos);\n"
 			"  vec3 reflectDir = reflect(-L1Dir, Normal);\n"
 
 			"  vec4 L1Specular = L1Color * pow(	max( dot(viewDir, reflect(-L1Dir, Normal)), 0.0 ), 4);\n"
@@ -238,21 +240,29 @@ void Player::Render() {
 	//update camera
 	glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)1920 / (float)1080, 0.1f, 100.0f);
 	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0, 0, -3));
+	view = glm::rotate(view, -cameraRotation.x, glm::vec3(0,1,0));
+	view = glm::rotate(view, -cameraRotation.y, glm::vec3(1,0,0));
+	view = glm::translate(view,-cameraPosition);
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, position);
 	model = glm::rotate(model, rotation.x, glm::vec3(0, 1, 0));
 	
-	glm::mat4 vertexMatrix = view * model;
-	glm::mat4 normalMatrix = glm::inverseTranspose(vertexMatrix);
-	vertexMatrix = projection * vertexMatrix;
+	glm::mat4 modelMatrix = model;
+	glm::mat4 normalMatrix = glm::inverseTranspose(model);
+	glm::mat4 viewMatrix = projection * view * model;;
 
-	unsigned int loc_vertexMatrix = glGetUniformLocation(shaderProgram, "vertexMatrix");
+	unsigned int loc_viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
 	unsigned int loc_normalMatrix = glGetUniformLocation(shaderProgram, "normalMatrix");
+	unsigned int loc_modelMatrix = glGetUniformLocation(shaderProgram, "modelMatrix");
 	
-
-	glUniformMatrix4fv(loc_vertexMatrix, 1, GL_FALSE, glm::value_ptr(vertexMatrix));
+	glUniformMatrix4fv(loc_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(loc_normalMatrix, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+	glUniformMatrix4fv(loc_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+	unsigned int loc_cameraPosition = glGetUniformLocation(shaderProgram, "cameraPosition");
+	//unsigned int loc_cameraDirection = glGetUniformLocation(shaderProgram, "cameraDirection");
+
+	glUniform3f(loc_cameraPosition, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	unsigned int loc_specularAmount = glGetUniformLocation(shaderProgram, "specularAmount");
 	unsigned int loc_diffuseAmount = glGetUniformLocation(shaderProgram, "diffuseAmount");
@@ -290,6 +300,12 @@ void Player::Update(float dt) {
 	if (keyboard[SDL_SCANCODE_D]) rotation += glm::vec3(1, 0, 0) * dt;
 	if (keyboard[SDL_SCANCODE_A]) rotation += glm::vec3(-1, 0, 0) * dt;
 
+	glm::vec3 cameraFront = glm::rotate(glm::mat4(1.0f), cameraRotation.x, glm::vec3(0, 1, 0)) * glm::vec4(0,0,-1,0);
+	if (keyboard[SDL_SCANCODE_I]) cameraPosition += 3.0f * cameraFront * dt;
+	if (keyboard[SDL_SCANCODE_K]) cameraPosition += -3.0f * cameraFront * dt;
+	if (keyboard[SDL_SCANCODE_L]) cameraRotation += 2.0f * glm::vec3(-1, 0, 0) * dt;
+	if (keyboard[SDL_SCANCODE_J]) cameraRotation += 2.0f * glm::vec3(1, 0, 0) * dt;
+
 	if (keyboard[SDL_SCANCODE_PAGEUP]) {   specularAmount += dt; std::cout <<"Specular: "<< specularAmount << std::endl;}
 	if (keyboard[SDL_SCANCODE_PAGEDOWN]) { specularAmount -= dt; std::cout <<"Specular: "<< specularAmount << std::endl;}
 
@@ -297,4 +313,3 @@ void Player::Update(float dt) {
 	if (keyboard[SDL_SCANCODE_END]) {    diffuseAmount -= dt; std::cout <<   "Diffuse: " << diffuseAmount << std::endl; }
 	
 }
-

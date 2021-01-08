@@ -19,6 +19,7 @@ class Player
 	glm::vec3 rotation;
 
 	glm::vec3 cameraPosition;
+	glm::vec3 cameraRotation;
 	glm::mat4x4 cameraProjection;
 	
 	Mesh mesh;
