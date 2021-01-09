@@ -7,7 +7,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <chrono>
+
 #include "Mouse.h"
+#include "Field.h"
+#include "Goalpost.h"
 
 
 
@@ -38,12 +41,22 @@ int main(int argc, char* args[])
         
      Player player;
      player.Load();
+     Field field;
+     field.Load();
+     Goalpost goalpost1;
+     goalpost1.Load();
+     goalpost1.SetPosition(glm::vec3(-40, 0, 0));
+     Goalpost goalpost2;
+     goalpost2.Load();
+     goalpost2.SetPosition(glm::vec3(40, 0, 0));
+     goalpost2.SetRotation(glm::vec3(glm::radians(180.0f), 0, 0));
 
        //Event handler
        SDL_Event event;
        
        auto previousTime = std::chrono::steady_clock::now();
        glEnable(GL_DEPTH_TEST);
+
 
 
        //While application is running
@@ -71,7 +84,9 @@ int main(int argc, char* args[])
 
            player.Update(dt);
            player.Render();
-
+           field.Render(player.GetCamera());
+           goalpost1.Render(player.GetCamera());
+           goalpost2.Render(player.GetCamera());
 
            SDL_GL_SwapWindow(window);
        }

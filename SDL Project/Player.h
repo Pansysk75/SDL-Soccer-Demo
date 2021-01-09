@@ -14,9 +14,9 @@ class Player
 	glm::vec3 rotation;
 
 	Camera camera;
-	glm::mat4x4 cameraProjection;
 	
 	Model model;
+	Mesh collisionMesh;
 	Skybox skybox;
 
 
@@ -24,6 +24,7 @@ public:
 	void Load();
 	void Update(float dt);
 	void Render();
+	Camera& GetCamera() { return camera; }
 	
 };
 

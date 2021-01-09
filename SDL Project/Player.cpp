@@ -14,8 +14,9 @@
 void Player::Load(){
 		model.Load("player");
 		skybox.Load();
-		position = glm::vec3(0,0,0);
+		position = glm::vec3(0,2,0);
 		rotation = glm::vec3(0, 0, 0);
+		collisionMesh.Import("Player_CollisionMesh");
 
 	}
 

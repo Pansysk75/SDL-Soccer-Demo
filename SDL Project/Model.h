@@ -24,7 +24,7 @@ public:
 	unsigned int shaderProgram;
 	unsigned int texture;
 
-	Model():specularAmount(0), diffuseAmount(0), position(0), rotation(0){}
+	Model():specularAmount(1), diffuseAmount(1), position(0), rotation(0){}
 
 	void Render(Camera& camera) {
 
@@ -47,8 +47,6 @@ public:
 		glUniformMatrix4fv(loc_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 		unsigned int loc_cameraPosition = glGetUniformLocation(shaderProgram, "cameraPosition");
-		//unsigned int loc_cameraDirection = glGetUniformLocation(shaderProgram, "cameraDirection");
-
 		glUniform3f(loc_cameraPosition, camera.position.x, camera.position.y, camera.position.z);
 
 		unsigned int loc_specularAmount = glGetUniformLocation(shaderProgram, "specularAmount");
@@ -118,7 +116,12 @@ public:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(unsigned int), indexData.data(), GL_STATIC_DRAW);
 
 		LoadShaders();
+	
+		if (std::filesystem::exists(std::filesystem::current_path().parent_path().string() + "\\Assets\\" + modelName + ".png"))
 		LoadTexture(modelName + ".png");
+		else if (std::filesystem::exists(std::filesystem::current_path().parent_path().string() + "\\Assets\\" + modelName + ".jpg"))
+		LoadTexture(modelName + ".jpg");
+
 	}
 
 private:
@@ -159,13 +162,13 @@ private:
 			"uniform float diffuseAmount;\n"
 			"void main()\n"
 			"{\n"
-			"  vec3 L1Dir = normalize(vec3(1, 0, 0.0));\n"
-			"  vec3 L2Dir = normalize(vec3(-1, -0.7, -1));\n"
-			"  vec3 L3Dir = vec3(0, 0, -1);\n"
+			"  vec3 L1Dir = normalize(vec3(1, 1, -1));\n"
+			"  vec3 L2Dir = normalize(vec3(-1, -1, -1));\n"
+			"  vec3 L3Dir = normalize(vec3(1, -1, -1));\n"
 
-			"  vec4 L1Color = vec4(0.0, 0.2, 0.4, 1);\n"
+			"  vec4 L1Color = vec4(1, 1, 1, 1);\n"
 			"  vec4 L2Color = vec4(0.7, 0.8, 1, 1);\n"
-			"  vec4 L3Color = vec4(0, 0, 0, 1);\n"
+			"  vec4 L3Color = vec4(1, 1, 1, 1);\n"
 
 			"  vec4 L1Diffuse = L1Color *  max(dot(Normal, -L1Dir), 0.0);\n"
 			"  vec4 L2Diffuse = L2Color *  max(dot(Normal, -L2Dir), 0.0);\n"
@@ -179,11 +182,11 @@ private:
 			"  vec4 L3Specular = L3Color * pow( max( dot(viewDir, reflect(L3Dir, Normal)), 0.0 ), 8);\n"
 			" \n"
 			//"  vec4 amb = 0.2f * texture(ourTexture, TexCoord);\n"
-
-			"vec4 diffuse = texture(ourTexture, TexCoord) * (L1Diffuse + L2Diffuse + L3Diffuse);\n"
+			"vec4 ambient = texture(ourTexture, TexCoord) * vec4(0.3,0.3,0.3, 1);\n"
+			"vec4 diffuse =  texture(ourTexture, TexCoord) * (L1Diffuse + L2Diffuse + L3Diffuse);\n"
 			"vec4 specular = L1Specular + L2Specular + L3Specular;\n"
 
-			"  FragColor = diffuseAmount* diffuse + specularAmount*specular;\n"
+			"  FragColor = ambient + diffuseAmount* diffuse + specularAmount*specular;\n"
 			//"  FragColor =texture(ourTexture, TexCoord);\n "
 			"}\0";
 
@@ -238,9 +241,10 @@ private:
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			if(nrChannels == 4)			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			else if (nrChannels == 3)	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			glUseProgram(shaderProgram);
