@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <glm/vec2.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -52,7 +53,7 @@ struct Mesh {
 			mesh.indices.reserve(aiMesh->mNumFaces * 3);
 
 			for (unsigned int i = 0; i < aiMesh->mNumFaces; i++) {
-				auto aiFace = aiMesh->mFaces[i];
+				aiFace& aiFace = aiMesh->mFaces[i];
 				for (unsigned int j = 0; j < aiFace.mNumIndices; j++)
 					mesh.indices.push_back(aiFace.mIndices[j]);
 			}

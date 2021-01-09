@@ -7,6 +7,7 @@
 #include <iostream>
 #include "stb_image.h"
 #include <filesystem>
+#include "Camera.h"
 
 
 
@@ -18,6 +19,21 @@ public:
 	unsigned int VBO;
 	unsigned int skyboxTexture;
 	unsigned int shaderProgram;
+
+
+	void Render(Camera& camera) {
+		glm::mat4 viewProjectionMatrix = camera.projectionMatrix * glm::mat4(glm::mat3(camera.viewMatrix));
+		glUseProgram(shaderProgram);
+		glDepthMask(GL_FALSE);
+
+		unsigned int loc_viewProjectionMatrix = glGetUniformLocation(shaderProgram, "viewProjectionMatrix");
+		glUniformMatrix4fv(loc_viewProjectionMatrix, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+
+		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
+	}
 
 	void Load() {
 		float skyboxVertices[] = {
@@ -160,17 +176,6 @@ public:
 
 	}
 
-	void Render(glm::mat4 viewProjectionMatrix) {
-		glUseProgram(shaderProgram);
-		glDepthMask(GL_FALSE);
-	
-		unsigned int loc_viewProjectionMatrix = glGetUniformLocation(shaderProgram, "viewProjectionMatrix");
-		glUniformMatrix4fv(loc_viewProjectionMatrix, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 
-		glBindVertexArray(VAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-	}
 };
 

@@ -1,22 +1,73 @@
 #pragma once
 #include "Mesh.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+
 #include <GL\glew.h>
 #include "stb_image.h"
-
+#include "Camera.h"
 
 class Model {
 public:
+	glm::vec3 position;
+	glm::vec3 rotation;
+
 	Mesh mesh;
+
+	float specularAmount;
+	float diffuseAmount;
+
 	unsigned int VAO;
 	unsigned int VBO;
 	unsigned int EBO; //element buffer object -> indices
 	unsigned int shaderProgram;
 	unsigned int texture;
 
-	void Render() {
+	Model():specularAmount(0), diffuseAmount(0), position(0), rotation(0){}
+
+	void Render(Camera& camera) {
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, position);
+		model = glm::rotate(model, rotation.x, glm::vec3(0, 1, 0));
+
+		glm::mat4 modelMatrix = model;
+		glm::mat4 normalMatrix = glm::inverseTranspose(model);
+		glm::mat4 viewMatrix = camera.projectionMatrix * camera.viewMatrix * model;;
 
 
+		glUseProgram(shaderProgram);
+		unsigned int loc_viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
+		unsigned int loc_normalMatrix = glGetUniformLocation(shaderProgram, "normalMatrix");
+		unsigned int loc_modelMatrix = glGetUniformLocation(shaderProgram, "modelMatrix");
+
+		glUniformMatrix4fv(loc_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(loc_normalMatrix, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+		glUniformMatrix4fv(loc_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+		unsigned int loc_cameraPosition = glGetUniformLocation(shaderProgram, "cameraPosition");
+		//unsigned int loc_cameraDirection = glGetUniformLocation(shaderProgram, "cameraDirection");
+
+		glUniform3f(loc_cameraPosition, camera.position.x, camera.position.y, camera.position.z);
+
+		unsigned int loc_specularAmount = glGetUniformLocation(shaderProgram, "specularAmount");
+		unsigned int loc_diffuseAmount = glGetUniformLocation(shaderProgram, "diffuseAmount");
+		glUniform1f(loc_specularAmount, specularAmount);
+		glUniform1f(loc_diffuseAmount,  diffuseAmount);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glDrawArrays(GL_TRIANGLES, 0, mesh.vertices.size()*3);
+		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
 	}
+
+
 
 	void Load(std::string modelName) {
 		mesh.Import(modelName + ".obj");
