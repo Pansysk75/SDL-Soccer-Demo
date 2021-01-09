@@ -1,4 +1,5 @@
 //Using SDL and standard IO
+
 #include <Windows.h>
 #include <SDL\SDL.h>
 #include <GL\glew.h>
@@ -6,6 +7,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <chrono>
+
+
 
 #include "Player.h"
 
@@ -32,7 +35,7 @@ int main(int argc, char* args[])
      if (glewInit() != GLEW_OK) printf("Couldn't init glew");
         
      Player player;
-     player.LoadMesh();
+     player.Load();
 
        //Event handler
        SDL_Event event;
