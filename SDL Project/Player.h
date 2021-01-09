@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Skybox.h"
+#include "Soccerball.h"
 
 
 
@@ -21,6 +22,7 @@ class Player
 	Model model;
 	Mesh collisionMesh;
 	Skybox skybox;
+	Soccerball ball;
 
 
 public:

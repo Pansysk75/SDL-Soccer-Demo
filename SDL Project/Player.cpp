@@ -13,6 +13,7 @@
 
 void Player::Load(){
 		model.Load("player");
+		ball.Load();
 		skybox.Load();
 		position = glm::vec3(0,2,0);
 		rotation = glm::vec3(0, 0, 0);
@@ -26,6 +27,7 @@ void Player::Load(){
 void Player::Render() {
 
 	skybox.Render(camera);
+	ball.Render(camera);
 	model.Render(camera);
 
 	GLenum err;
@@ -45,7 +47,8 @@ void Player::Update(float dt) {
 	
 	
 	rotation += Mouse::GetRelativePosition().x * glm::vec3(-1, 0, 0) * dt ;
-	rotation += Mouse::GetRelativePosition().y * glm::vec3(0, -1, 0) * dt ;
+	camera.Rotate(Mouse::GetRelativePosition().x * glm::vec3(-1, 0, 0) * dt);
+	camera.Rotate ( Mouse::GetRelativePosition().y * glm::vec3(0, -1, 0) * dt );
 
 	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(0, 1, 0));
 	glm::vec3 forwardVec = rotationMatrix * glm::vec4(0,0,-1,0);
@@ -85,7 +88,7 @@ void Player::Update(float dt) {
 	if (keyboard[SDL_SCANCODE_END]) {    model.diffuseAmount -= dt; std::cout <<   "Diffuse: " << model.diffuseAmount << std::endl; }
 
 	camera.position = position + glm::vec3(0, 1.6f, 0);
-	camera.SetRotation( rotation);
+	
 	camera.Update();
 	model.position = position;
 	model.rotation = rotation;
