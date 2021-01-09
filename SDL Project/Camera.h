@@ -21,9 +21,7 @@ public:
 		position += moveVec;
 	}
 	void Rotate(glm::vec3 relativeRotationVec) {
-		rotation += relativeRotationVec;
-		if (rotation.y > glm::radians(90.0)) rotation.y = glm::radians(90.0);
-		if (rotation.y < glm::radians(-90.0)) rotation.y = glm::radians(-90.0);
+		SetRotation(rotation + relativeRotationVec);
 	}
 
 	void Update() {
@@ -31,5 +29,11 @@ public:
 		viewMatrix = glm::rotate(viewMatrix, -rotation.y, glm::vec3(1, 0, 0));
 		viewMatrix = glm::rotate(viewMatrix, -rotation.x, glm::vec3(0, 1, 0));
 		viewMatrix = glm::translate(viewMatrix, -position);
+	}
+
+	void SetRotation(glm::vec3 rotation) {
+		this->rotation = rotation;
+		if (this->rotation.y > glm::radians(90.0))	this->rotation.y = glm::radians(90.0);
+		else if (this->rotation.y < glm::radians(-90.0)) this->rotation.y = glm::radians(-90.0);
 	}
 };

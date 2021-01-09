@@ -77,7 +77,7 @@ int main(int argc, char* args[])
  
            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+           //time in seconds
            float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - previousTime).count() * 0.000000001f;
            previousTime = std::chrono::steady_clock::now();
 
