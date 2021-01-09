@@ -178,7 +178,7 @@ private:
 		std::string texturePath = std::filesystem::current_path().parent_path().string() + "\\Assets\\"+textureFileName;
 		unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data) { 
-			std::cout << "Failed to load Player texture" << std::endl; 
+			std::cout << "Failed to load " + textureFileName +" texture" << std::endl; 
 			return false;
 		}
 		else {

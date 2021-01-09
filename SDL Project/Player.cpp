@@ -33,7 +33,7 @@ void Player::Render() {
 
 	
 	//update camera
-	glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)1920 / (float)1080, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)1920 / (float)1080, 0.1f, 100.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::rotate(view, -cameraRotation.x, glm::vec3(0,1,0));
 	view = glm::rotate(view, -cameraRotation.y, glm::vec3(1,0,0));
