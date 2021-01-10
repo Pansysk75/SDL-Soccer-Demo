@@ -21,7 +21,7 @@ public:
 		model.Load("soccerball");
 		model.specularAmount = 0.1f;
 		model.diffuseAmount = 1.0f;
-		position = glm::vec3(0, 10, 0);
+		position = glm::vec3(0, 2, 0);
 		rotation = glm::vec3(0, 0, 0);
 
 		velocity = glm::vec3(0, 0, 0);

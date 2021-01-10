@@ -12,8 +12,6 @@
 #include "Field.h"
 #include "Goalpost.h"
 
-
-
 #include "Player.h"
 
 //Screen dimension constants

@@ -24,6 +24,13 @@ class Player
 	Skybox skybox;
 	Soccerball ball;
 
+	//Player attributes:
+	float runSpeed;
+	float sprintSpeed;
+	float friction;
+
+	bool hasBall;
+
 	float shootPowerBuildup;
 	float shootingPower;
 	float shootingLift;
