@@ -1,0 +1,24 @@
+#pragma once
+#include <glm/vec2.hpp>
+
+class Mouse {
+	inline static glm::vec2 position = glm::vec2(0);
+	inline static glm::vec2 relativePosition = glm::vec2(0);
+	inline static bool leftButtonDown;
+	inline static bool rightButtonDown;
+
+public:
+
+	static void Update(glm::vec2 pos) { relativePosition = pos - position; position = pos; }
+	static void Update(float x, float y) { Update( glm::vec2(x, y) ); }
+
+	static void UpdateRel(glm::vec2 relPos) { relativePosition = relPos; }
+	static void UpdateRel(float xrel, float yrel) { UpdateRel( glm::vec2(xrel, yrel) ); }
+
+	static glm::vec2 GetPosition() { return position; }
+	static glm::vec2 GetRelativePosition() { return relativePosition; }
+
+	static void SetButtonStates(bool left, bool right) { leftButtonDown = left; rightButtonDown = right; }
+	static bool IsRightButtonDown() { return rightButtonDown; }
+	static bool IsLeftButtonDown() { return leftButtonDown; }
+};
