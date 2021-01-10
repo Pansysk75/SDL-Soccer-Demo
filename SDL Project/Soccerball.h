@@ -5,23 +5,38 @@
 
 class Soccerball {
 
+public:
 	glm::vec3 position;
 	glm::vec3 rotation;
+	float radius;
+
+	float mass;
+	glm::vec3 velocity;
 
 	Model model;
-	//Mesh collisionMesh;
 
 
-public:
+
 	void Load() {
 		model.Load("soccerball");
 		model.specularAmount = 0.1f;
 		model.diffuseAmount = 1.0f;
-		position = glm::vec3(0, 0, 0);
+		position = glm::vec3(0, 10, 0);
 		rotation = glm::vec3(0, 0, 0);
-		//collisionMesh.Import("Player_CollisionMesh");
+
+		velocity = glm::vec3(0, 0, 0);
+		mass = 0.43f;
+		radius = 0.4f;
+	
 	}
-	void Update(float dt);
+	void Update(float dt) {
+		position += velocity * dt;
+		rotation.y += 0.005f * velocity.z;
+		rotation.z += -0.005f * velocity.x;
+
+		model.position = position;
+		model.rotation = rotation;
+	}
 	void Render(Camera& camera) {
 		model.Render(camera);
 	}

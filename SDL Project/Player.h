@@ -24,6 +24,9 @@ class Player
 	Skybox skybox;
 	Soccerball ball;
 
+	float shootPowerBuildup;
+	float shootingPower;
+	float shootingLift;
 
 public:
 	void Load();

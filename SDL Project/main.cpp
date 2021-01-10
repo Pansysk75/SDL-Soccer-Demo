@@ -17,8 +17,8 @@
 #include "Player.h"
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 1920/2;
+const int SCREEN_HEIGHT = 1080/2;
 
 
 int main(int argc, char* args[])
@@ -71,8 +71,9 @@ int main(int argc, char* args[])
            }
 
            int mouseX, mouseY;
-           SDL_GetRelativeMouseState(&mouseX, &mouseY);
+           Uint32 mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
            Mouse::UpdateRel(mouseX, mouseY);
+           Mouse::SetButtonStates(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT), mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
            
  
            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

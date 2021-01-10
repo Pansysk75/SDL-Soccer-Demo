@@ -36,4 +36,8 @@ public:
 		if (this->rotation.y > glm::radians(90.0))	this->rotation.y = glm::radians(90.0);
 		else if (this->rotation.y < glm::radians(-90.0)) this->rotation.y = glm::radians(-90.0);
 	}
+
+	glm::vec3 GetLookDirection() {
+		return -glm::mat4(glm::mat3(viewMatrix)) * glm::vec4(0, 0, - 1, 0);
+	}
 };

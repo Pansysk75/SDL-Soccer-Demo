@@ -4,6 +4,8 @@
 class Mouse {
 	inline static glm::vec2 position = glm::vec2(0);
 	inline static glm::vec2 relativePosition = glm::vec2(0);
+	inline static bool leftButtonDown;
+	inline static bool rightButtonDown;
 
 public:
 
@@ -15,4 +17,8 @@ public:
 
 	static glm::vec2 GetPosition() { return position; }
 	static glm::vec2 GetRelativePosition() { return relativePosition; }
+
+	static void SetButtonStates(bool left, bool right) { leftButtonDown = left; rightButtonDown = right; }
+	static bool IsRightButtonDown() { return rightButtonDown; }
+	static bool IsLeftButtonDown() { return leftButtonDown; }
 };

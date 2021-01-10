@@ -20,6 +20,9 @@ void Player::Load(){
 		velocity = glm::vec3(0, 0, 0);
 		collisionMesh.Import("Player_CollisionMesh");
 
+		shootingPower = 20.0f;
+		shootingLift = 0.6f;
+		shootPowerBuildup = 0.0f;
 	}
 
 
@@ -81,15 +84,53 @@ void Player::Update(float dt) {
 	position += velocity * dt;
 
 
-	if (keyboard[SDL_SCANCODE_PAGEUP]) {   model.specularAmount += dt; std::cout <<"Specular: "<< model.specularAmount << std::endl;}
-	if (keyboard[SDL_SCANCODE_PAGEDOWN]) { model.specularAmount -= dt; std::cout <<"Specular: "<< model.specularAmount << std::endl;}
+	if (keyboard[SDL_SCANCODE_HOME]) {   shootingPower += dt * (shootingPower + 1) ; std::cout <<	"Power: " << shootingPower << std::endl; }
+	if (keyboard[SDL_SCANCODE_PAGEUP]) { shootingPower -= dt * (shootingPower + 1) ; std::cout <<	"Power: "<<  shootingPower << std::endl;}
 
-	if (keyboard[SDL_SCANCODE_HOME]) {   model.diffuseAmount += dt; std::cout <<   "Diffuse: " << model.diffuseAmount << std::endl; }
-	if (keyboard[SDL_SCANCODE_END]) {    model.diffuseAmount -= dt; std::cout <<   "Diffuse: " << model.diffuseAmount << std::endl; }
+	if (keyboard[SDL_SCANCODE_PAGEDOWN]) {shootingLift += dt * (shootingLift + 1); std::cout <<  "Lift: " << shootingLift << std::endl;}
+	if (keyboard[SDL_SCANCODE_END]) {	  shootingLift -= dt * (shootingLift + 1); std::cout <<  "Lift: " << shootingLift << std::endl; }
 
-	camera.position = position + glm::vec3(0, 1.6f, 0);
+	//BALL
+	ball.velocity += glm::vec3(0, -10, 0) * dt;
+	if (ball.position.y - ball.radius < 0.0f) {
+		ball.position.y = ball.radius + 0.0f;
+		if (ball.velocity.y < 0) {
+			ball.velocity.y = -ball.velocity.y ;
+			ball.velocity = ball.velocity * 0.6f;
+		}
+	}
+	if (keyboard[SDL_SCANCODE_RETURN]) {
+		ball.velocity = glm::vec3(0.0f);
+		ball.position = glm::vec3(0, 10, 0);
+	}
+	float playerRadius = 1.0f;
+	if (glm::abs(position.x - ball.position.x) < ball.radius + playerRadius && glm::abs(position.z - ball.position.z) < ball.radius + playerRadius) {
+		ball.velocity += (ball.position - position)*dt;
+		//std::cout << "COLL" << std::endl;
+		if (Mouse::IsLeftButtonDown()) {
+			shootPowerBuildup += dt;
+			if (shootPowerBuildup > 2.0f)shootPowerBuildup = 2.0f;
+			std::cout << shootPowerBuildup << std::endl;
+		} else if(shootPowerBuildup > 0){
+			glm::vec3 cameraDirection = camera.GetLookDirection();
+			cameraDirection.z = -cameraDirection.z;
+			cameraDirection.y = 0.0f;
+			glm::vec3 direction = glm::normalize(cameraDirection);
+			direction.y = shootingLift;
+			direction = glm::normalize(direction);
+			if (shootPowerBuildup < 0.1f) shootPowerBuildup = 0.1f;
+			ball.velocity += shootingPower * shootPowerBuildup * direction;
+			shootPowerBuildup = 0.0f;
+		}
+	}
+	else {
+		shootPowerBuildup = 0.0f;
+	}
+
+	camera.position = position + glm::vec3(0, 1.8f, 0);
 	
 	camera.Update();
+	ball.Update(dt);
 	model.position = position;
 	model.rotation = rotation;
 }
