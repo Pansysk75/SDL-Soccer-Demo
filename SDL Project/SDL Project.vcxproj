@@ -152,6 +152,7 @@
     <ClInclude Include="CollisionMesh.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="Goalpost.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Mouse.h" />

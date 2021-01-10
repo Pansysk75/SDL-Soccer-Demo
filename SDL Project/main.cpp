@@ -13,6 +13,8 @@
 #include "Goalpost.h"
 
 #include "Player.h"
+#include "Light.h"
+
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 1920/2;
@@ -49,6 +51,14 @@ int main(int argc, char* args[])
      goalpost2.SetPosition(glm::vec3(40, 0, 0));
      goalpost2.SetRotation(glm::vec3(glm::radians(180.0f), 0, 0));
 
+     std::vector<Light> lights;
+     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(-1.0f, -1.0f, -1.0f), 1.0f));
+     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -1.0f, 1.0f),  0.5f));
+     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -0.5f, -1.0f), 0.5f));
+     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(0.4f, -0.7f, -0.2f), 0.5f));
+
+
+
        //Event handler
        SDL_Event event;
        
@@ -82,10 +92,10 @@ int main(int argc, char* args[])
 
 
            player.Update(dt);
-           player.Render();
-           field.Render(player.GetCamera());
-           goalpost1.Render(player.GetCamera());
-           goalpost2.Render(player.GetCamera());
+           player.Render(lights);
+           field.Render(player.GetCamera(), lights);
+           goalpost1.Render(player.GetCamera(), lights);
+           goalpost2.Render(player.GetCamera(), lights);
 
            SDL_GL_SwapWindow(window);
        }

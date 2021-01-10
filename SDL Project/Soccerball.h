@@ -37,7 +37,7 @@ public:
 		model.position = position;
 		model.rotation = rotation;
 	}
-	void Render(Camera& camera) {
-		model.Render(camera);
+	void Render(Camera& camera, std::vector<Light>& lights) {
+		model.Render(camera, lights);
 	}
 };

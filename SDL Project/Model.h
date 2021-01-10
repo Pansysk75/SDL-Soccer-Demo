@@ -7,6 +7,9 @@
 #include <GL\glew.h>
 #include "stb_image.h"
 #include "Camera.h"
+#include "Light.h"
+#include <vector>
+#include <string>
 
 class Model {
 public:
@@ -26,7 +29,7 @@ public:
 
 	Model():specularAmount(1), diffuseAmount(1), position(0), rotation(0){}
 
-	void Render(Camera& camera) {
+	void Render(Camera& camera, std::vector<Light>& lights) {
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, position);
@@ -38,8 +41,22 @@ public:
 		glm::mat4 normalMatrix = glm::inverseTranspose(model);
 		glm::mat4 viewMatrix = camera.projectionMatrix * camera.viewMatrix * model;;
 
-
 		glUseProgram(shaderProgram);
+		/////////////////////LIGHTSSS
+
+		glUniform1ui(glGetUniformLocation(shaderProgram, "nLights"), lights.size());
+		for (GLuint i = 0; i < lights.size(); i++)
+		{
+			std::string number = std::to_string(i);
+
+			glUniform3f(glGetUniformLocation(shaderProgram, ("lights[" + number + "].color").c_str()), lights[i].color.r, lights[i].color.g, lights[i].color.b);
+			glUniform3f(glGetUniformLocation(shaderProgram, ("lights[" + number + "].direction").c_str()), lights[i].direction.x, lights[i].direction.y, lights[i].direction.z);
+			glUniform1f(glGetUniformLocation(shaderProgram, ("lights[" + number + "].intensity").c_str()), lights[i].intensity);
+		}
+
+		////////////////////
+
+
 		unsigned int loc_viewMatrix = glGetUniformLocation(shaderProgram, "viewMatrix");
 		unsigned int loc_normalMatrix = glGetUniformLocation(shaderProgram, "normalMatrix");
 		unsigned int loc_modelMatrix = glGetUniformLocation(shaderProgram, "modelMatrix");
@@ -128,69 +145,79 @@ public:
 
 private:
 
+	//for this shader
+
 	void LoadShaders() {
 
 
 		//shaders
-		const char* vertexShaderSource = "#version 330 core\n"
-			"layout (location = 0) in vec3 aPos;\n"
-			"layout (location = 1) in vec3 aNorm;\n"
-			"layout (location = 2) in vec2 aTexCoord;\n"
-			"out vec3 Normal;\n"
-			"out vec2 TexCoord;\n"
-			"out vec3 vertexPos;\n"
-			"uniform mat4 viewMatrix;\n"
-			"uniform mat4 normalMatrix;\n"
-			"uniform mat4 modelMatrix;\n"
+		const char* vertexShaderSource = R"(
+			#version 330 core
+			layout (location = 0) in vec3 aPos;
+			layout (location = 1) in vec3 aNorm;
+			layout (location = 2) in vec2 aTexCoord;
+			out vec3 Normal;
+			out vec2 TexCoord;
+			out vec3 vertexPos;
+			uniform mat4 viewMatrix;
+			uniform mat4 normalMatrix;
+			uniform mat4 modelMatrix;
 
 
-			"void main()\n"
-			"{\n"
-			"   gl_Position =viewMatrix * vec4(aPos, 1.0);\n"
-			"   TexCoord = aTexCoord;\n"
-			"   Normal = normalize(vec3(normalMatrix*vec4(aNorm , 0.0)));\n"
-			"   vertexPos = vec3( modelMatrix * vec4(aPos, 1.0) );\n"
-			"}\0";
+			void main()
+			{
+			   gl_Position =viewMatrix * vec4(aPos, 1.0);
+			   TexCoord = aTexCoord;
+			   Normal = normalize(vec3(normalMatrix*vec4(aNorm , 0.0)));
+			   vertexPos = vec3( modelMatrix * vec4(aPos, 1.0) );
+			}
+		)";
 
-		const char* fragmentShaderSource = "#version 330 core\n"
-			"out vec4 FragColor;\n"
-			"in vec3 Normal;\n"
-			"in vec2 TexCoord;\n"
-			"in vec3 vertexPos;\n"
-			"uniform vec3 cameraPosition;\n"
+		const char* fragmentShaderSource = R"(
+			#version 330 core
+			out vec4 FragColor;
+			in vec3 Normal;
+			in vec2 TexCoord;
+			in vec3 vertexPos;
+			uniform vec3 cameraPosition;
 
-			"uniform sampler2D ourTexture;\n"
-			"uniform float specularAmount;\n"
-			"uniform float diffuseAmount;\n"
-			"void main()\n"
-			"{\n"
-			"  vec3 L1Dir = normalize(vec3(1, 1, -1));\n"
-			"  vec3 L2Dir = normalize(vec3(-1, -1, -1));\n"
-			"  vec3 L3Dir = normalize(vec3(1, -1, -1));\n"
+			uniform sampler2D ourTexture;
+			uniform float specularAmount;
+			uniform float diffuseAmount;
+		
+			struct Light{
+				vec3 color;
+				vec3 direction;
+				float intensity;
+			};
+			uniform Light lights[32];
+			uniform uint nLights;
 
-			"  vec4 L1Color = vec4(1, 1, 1, 1);\n"
-			"  vec4 L2Color = vec4(0.7, 0.8, 1, 1);\n"
-			"  vec4 L3Color = vec4(1, 1, 1, 1);\n"
+	
+			void main()
+			{
 
-			"  vec4 L1Diffuse = L1Color *  max(dot(Normal, -L1Dir), 0.0);\n"
-			"  vec4 L2Diffuse = L2Color *  max(dot(Normal, -L2Dir), 0.0);\n"
-			"  vec4 L3Diffuse = L3Color *  max(dot(Normal, -L3Dir), 0.0);\n"
+			  vec3 viewDir = normalize( cameraPosition - vertexPos);
 
-			//"  vec3 viewDir = normalize(cameraPosition - vertexPos);\n"
-			"  vec3 viewDir = normalize( cameraPosition - vertexPos);\n"
+			  vec4 diffuse;
+			  vec4 specular;
 
-			"  vec4 L1Specular = L1Color * pow(	max( dot(viewDir, reflect(L1Dir, Normal)), 0.0 ), 8);\n"
-			"  vec4 L2Specular = L2Color * pow( max( dot(viewDir, reflect(L2Dir, Normal)), 0.0 ), 8);\n"
-			"  vec4 L3Specular = L3Color * pow( max( dot(viewDir, reflect(L3Dir, Normal)), 0.0 ), 8);\n"
-			" \n"
-			//"  vec4 amb = 0.2f * texture(ourTexture, TexCoord);\n"
-			"vec4 ambient = texture(ourTexture, TexCoord) * vec4(0.3,0.3,0.3, 1);\n"
-			"vec4 diffuse =  texture(ourTexture, TexCoord) * (L1Diffuse + L2Diffuse + L3Diffuse);\n"
-			"vec4 specular = L1Specular + L2Specular + L3Specular;\n"
+			  for(uint i=0; i<nLights; i++){
+				diffuse +=  vec4( lights[i].intensity * lights[i].color *  max(dot(Normal, -lights[i].direction), 0.0) , 1.0f);
+			    specular += vec4( lights[i].intensity * lights[i].color * pow(	max( dot(viewDir, reflect(-lights[i].direction, Normal)), 0.0 ), 8), 1.0f);
+				
+			  }
+		
+			diffuse =  texture(ourTexture, TexCoord) * diffuse;
+			//if(nLights ==0 ){diffuse =  texture(ourTexture, TexCoord) * vec4(1.0,1.0,1.0,1.0);}
 
-			"  FragColor = ambient + diffuseAmount* diffuse + specularAmount*specular;\n"
-			//"  FragColor =texture(ourTexture, TexCoord);\n "
-			"}\0";
+			vec4 ambient = texture(ourTexture, TexCoord) * vec4(0.3,0.3,0.3, 1.0);
+			
+
+			  FragColor = ambient + diffuseAmount* diffuse + specularAmount*specular;
+		
+			}
+		)";
 
 		unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);

@@ -22,8 +22,8 @@ public:
 		collisionMesh.Import("Player_CollisionMesh");
 	}
 	void Update(float dt);
-	void Render(Camera& camera) {
-		model.Render(camera);
+	void Render(Camera& camera, std::vector<Light>& lights) {
+		model.Render(camera, lights);
 	}
 };
 

@@ -32,11 +32,11 @@ void Player::Load(){
 
 
 
-void Player::Render() {
+void Player::Render(std::vector<Light>& lights) {
 
 	skybox.Render(camera);
-	ball.Render(camera);
-	model.Render(camera);
+	ball.Render(camera, lights);
+	model.Render(camera, lights);
 
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)

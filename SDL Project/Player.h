@@ -8,7 +8,6 @@
 
 
 
-
 class Player
 {	
 	glm::vec3 position;
@@ -38,7 +37,7 @@ class Player
 public:
 	void Load();
 	void Update(float dt);
-	void Render();
+	void Render(std::vector<Light>& lights);
 	Camera& GetCamera() { return camera; }
 	
 };
