@@ -1,5 +1,6 @@
 //Using SDL and standard IO
-#include <Windows.h>
+
+//#include <Windows.h>
 #include <SDL\SDL.h>
 #include <GL\glew.h>
 #include <assimp/Importer.hpp>
@@ -7,11 +8,18 @@
 #include <iostream>
 #include <chrono>
 
+#include "Mouse.h"
+#include "Field.h"
+#include "Goalpost.h"
+
+
+
 #include "Player.h"
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 1920/2;
+const int SCREEN_HEIGHT = 1080/2;
+
 
 int main(int argc, char* args[])
 {
@@ -27,12 +35,21 @@ int main(int argc, char* args[])
      if (window == NULL) printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
      SDL_GL_CreateContext(window);
      SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
+     SDL_SetRelativeMouseMode(SDL_TRUE);
 
      if (glewInit() != GLEW_OK) printf("Couldn't init glew");
         
      Player player;
-     player.LoadMesh();
+     player.Load();
+     Field field;
+     field.Load();
+     Goalpost goalpost1;
+     goalpost1.Load();
+     goalpost1.SetPosition(glm::vec3(-40, 0, 0));
+     Goalpost goalpost2;
+     goalpost2.Load();
+     goalpost2.SetPosition(glm::vec3(40, 0, 0));
+     goalpost2.SetRotation(glm::vec3(glm::radians(180.0f), 0, 0));
 
        //Event handler
        SDL_Event event;
@@ -41,25 +58,36 @@ int main(int argc, char* args[])
        glEnable(GL_DEPTH_TEST);
 
 
+
        //While application is running
        while (true)
        {
            //Handle events on queue
+           
            while (SDL_PollEvent(&event) != 0)
            {
                if (event.type == SDL_QUIT) SDL_Quit();
+
            }
 
+           int mouseX, mouseY;
+           Uint32 mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+           Mouse::UpdateRel(mouseX, mouseY);
+           Mouse::SetButtonStates(mouseState & SDL_BUTTON(SDL_BUTTON_LEFT), mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
+           
+ 
            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+           //time in seconds
            float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - previousTime).count() * 0.000000001f;
            previousTime = std::chrono::steady_clock::now();
 
 
            player.Update(dt);
            player.Render();
-
+           field.Render(player.GetCamera());
+           goalpost1.Render(player.GetCamera());
+           goalpost2.Render(player.GetCamera());
 
            SDL_GL_SwapWindow(window);
        }
