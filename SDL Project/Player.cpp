@@ -127,10 +127,7 @@ void Player::Update(float dt) {
 	float playerRadius = 1.0f;
 	float shootRadius = 1.0f;
 
-	glm::vec3 movementDirection = velocity;
-	movementDirection.y = 0.0;
-	if (movementDirection != glm::vec3(0))movementDirection = glm::normalize(movementDirection);
-
+	
 	//for pushing ball
 	if (keyboard[SDL_SCANCODE_LCTRL]) {
 		if (glm::abs(position.x - ball.position.x) < ball.radius + playerRadius && glm::abs(position.z - ball.position.z) < ball.radius + playerRadius) {
@@ -163,6 +160,9 @@ void Player::Update(float dt) {
 			cameraDirection.y = 0.0f;
 			cameraDirection = glm::normalize(cameraDirection);
 
+			glm::vec3 movementDirection = velocity;
+			movementDirection.y = 0.0;
+			//if (movementDirection != glm::vec3(0))movementDirection = glm::normalize(movementDirection);
 
 			//glm::vec3 direction = 3.0f * movementDirection;
 			glm::vec3 direction = cameraDirection + movementDirection;
