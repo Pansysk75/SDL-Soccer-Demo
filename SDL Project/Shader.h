@@ -75,7 +75,18 @@ public:
 			uniform sampler2D ourTexture;
 			uniform float specularAmount;
 			uniform float diffuseAmount;
-		
+             
+			
+			struct Light_Point {
+				vec3 position;
+				vec3 color;
+				float falloffLinear;
+				float falloffQuadratic;
+				float intensity;
+			};
+			uniform Light_Point pointLights[32];
+			uniform int nPointLights;
+
 			struct Light{
 				vec3 color;
 				vec3 direction;
@@ -98,9 +109,17 @@ public:
 			    specular += vec4( lights[i].intensity * lights[i].color * pow(	max( dot(viewDir, reflect(-lights[i].direction, Normal)), 0.0 ), 8), 1.0f);
 				
 			  }
+			  for(int i=0; i< nPointLights; i++){
+				float distance = length(pointLights[i].position - vertexPos);
+				vec3 direction = (vertexPos - pointLights[i].position)/distance ;
+				float falloff = 1/(1 + pointLights[i].falloffLinear * distance + pointLights[i].falloffQuadratic * distance * distance );
+				diffuse +=  falloff* vec4( pointLights[i].intensity * pointLights[i].color *  max(dot(Normal, -direction), 0.0) , 1.0f);
+			    specular += falloff*vec4( pointLights[i].intensity * pointLights[i].color * pow(	max( dot(viewDir, reflect(direction, Normal)), 0.0 ), 32), 1.0f);
+
+			  }
 		
 			diffuse =  texture(ourTexture, TexCoord) * diffuse;
-			//if(nLights ==0 ){diffuse =  texture(ourTexture, TexCoord) * vec4(1.0,1.0,1.0,1.0);}
+			//if(nPointLights ==0 ){diffuse =  texture(ourTexture, TexCoord) * vec4(1.0,1.0,1.0,1.0);}
 
 			vec4 ambient = texture(ourTexture, TexCoord) * vec4(0.3,0.3,0.3, 1.0);
 			
@@ -122,7 +141,7 @@ public:
 		glAttachShader(shaderProgram, vertexShader);
 		glAttachShader(shaderProgram, fragmentShader);
 		glLinkProgram(shaderProgram);
-		ID = shaderProgram;
+		//yfghj
 
 		int  success;
 		char infoLog[512];
@@ -145,6 +164,7 @@ public:
 			glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM\n" << infoLog << std::endl;
 		}
+		ID = shaderProgram;
 	}
 	
 };

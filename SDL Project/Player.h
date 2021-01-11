@@ -20,7 +20,6 @@ class Player
 	
 	Model model;
 	Mesh collisionMesh;
-	Soccerball ball;
 
 	//Player attributes:
 	float runSpeed;
@@ -34,9 +33,10 @@ class Player
 	float shootingLift;
 
 public:
+	Soccerball ball;
 	void Load();
 	void Update(float dt);
-	void Render(std::vector<Light>& lights);
+	void Render(std::vector<Light>& lights, std::vector<Light_Point>& pointLights);
 	Camera& GetCamera() { return camera; }
 	
 };

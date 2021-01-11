@@ -27,11 +27,11 @@ public:
 		collisionMesh.Import("Player_CollisionMesh");
 	}
 	void Update(float dt);
-	void Render(Camera& camera, std::vector<Light>& lights) {
-		goalpostModel.Render(camera, lights);
+	void Render(Camera& camera, std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
+		goalpostModel.Render(camera, lights, pointLights);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		netModel.Render(camera, lights);
+		netModel.Render(camera, lights, pointLights);
 		glDisable(GL_BLEND);
 	}
 

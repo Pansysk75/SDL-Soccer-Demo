@@ -1,6 +1,22 @@
 #pragma once
 #include <glm/vec3.hpp>
 
+struct Light_Point {
+	glm::vec3 position;
+	glm::vec3 color;
+	float falloffLinear;
+	float falloffQuadratic;
+	float intensity;
+
+	Light_Point()
+		:position(0.0f),
+		color(1.0f),
+		falloffLinear(0.2f),
+		falloffQuadratic(0.1f),
+		intensity(1.0f)
+	{}
+};
+
 struct Light {
 	glm::vec3 color;
 	glm::vec3 direction;

@@ -31,10 +31,10 @@ void Player::Load(){
 
 
 
-void Player::Render(std::vector<Light>& lights) {
+void Player::Render(std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
 
-	ball.Render(camera, lights);
-	model.Render(camera, lights);
+	ball.Render(camera, lights, pointLights);
+	model.Render(camera, lights, pointLights);
 
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
