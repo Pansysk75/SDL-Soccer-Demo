@@ -18,6 +18,7 @@ class Scene {
     public:
 
     void Load() {
+        skybox.Load();
         player.Load();
         field.Load();
         goalpost1.Load();
@@ -30,15 +31,15 @@ class Scene {
         lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -1.0f, 1.0f), 0.5f));
         lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -0.5f, -1.0f), 0.5f));
         lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(0.4f, -0.7f, -0.2f), 0.5f));
+
     }
 
     void Update(float dt){
         player.Update(dt);
-       
-
     }
 
     void Render() {
+        skybox.Render(player.GetCamera());
         player.Render(lights);
         field.Render(player.GetCamera(), lights);
         goalpost1.Render(player.GetCamera(), lights);

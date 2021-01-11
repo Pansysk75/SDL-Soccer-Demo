@@ -20,7 +20,6 @@ class Player
 	
 	Model model;
 	Mesh collisionMesh;
-	Skybox skybox;
 	Soccerball ball;
 
 	//Player attributes:

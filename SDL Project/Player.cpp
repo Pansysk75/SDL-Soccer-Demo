@@ -14,7 +14,6 @@
 void Player::Load(){
 		model.Load("player");
 		ball.Load();
-		skybox.Load();
 		position = glm::vec3(0,2,0);
 		rotation = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);
@@ -34,7 +33,6 @@ void Player::Load(){
 
 void Player::Render(std::vector<Light>& lights) {
 
-	skybox.Render(camera);
 	ball.Render(camera, lights);
 	model.Render(camera, lights);
 
