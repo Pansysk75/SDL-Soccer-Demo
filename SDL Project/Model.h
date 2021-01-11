@@ -202,7 +202,7 @@ private:
 			  vec4 diffuse;
 			  vec4 specular;
 
-			  for(uint i=0; i<nLights; i++){
+			  for(int i=0; i<int(nLights); i++){
 				diffuse +=  vec4( lights[i].intensity * lights[i].color *  max(dot(Normal, -lights[i].direction), 0.0) , 1.0f);
 			    specular += vec4( lights[i].intensity * lights[i].color * pow(	max( dot(viewDir, reflect(-lights[i].direction, Normal)), 0.0 ), 8), 1.0f);
 				

@@ -9,11 +9,7 @@
 #include <chrono>
 
 #include "Mouse.h"
-#include "Field.h"
-#include "Goalpost.h"
-
-#include "Player.h"
-#include "Light.h"
+#include "Scene.h"
 
 
 //Screen dimension constants
@@ -38,26 +34,11 @@ int main(int argc, char* args[])
      SDL_SetRelativeMouseMode(SDL_TRUE);
 
      if (glewInit() != GLEW_OK) printf("Couldn't init glew");
-        
-     Player player;
-     player.Load();
-     Field field;
-     field.Load();
-     Goalpost goalpost1;
-     goalpost1.Load();
-     goalpost1.SetPosition(glm::vec3(-40, 0, 0));
-     Goalpost goalpost2;
-     goalpost2.Load();
-     goalpost2.SetPosition(glm::vec3(40, 0, 0));
-     goalpost2.SetRotation(glm::vec3(glm::radians(180.0f), 0, 0));
-
-     std::vector<Light> lights;
-     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(-1.0f, -1.0f, -1.0f), 1.0f));
-     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -1.0f, 1.0f),  0.5f));
-     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -0.5f, -1.0f), 0.5f));
-     lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(0.4f, -0.7f, -0.2f), 0.5f));
 
 
+
+     Scene scene;
+     scene.Load();
 
        //Event handler
        SDL_Event event;
@@ -90,12 +71,9 @@ int main(int argc, char* args[])
            float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - previousTime).count() * 0.000000001f;
            previousTime = std::chrono::steady_clock::now();
 
+           scene.Update(dt);
+           scene.Render();
 
-           player.Update(dt);
-           player.Render(lights);
-           field.Render(player.GetCamera(), lights);
-           goalpost1.Render(player.GetCamera(), lights);
-           goalpost2.Render(player.GetCamera(), lights);
 
            SDL_GL_SwapWindow(window);
        }
