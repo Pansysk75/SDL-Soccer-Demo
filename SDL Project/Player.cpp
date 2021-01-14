@@ -165,7 +165,7 @@ void Player::Update(float dt) {
 			//if (movementDirection != glm::vec3(0))movementDirection = glm::normalize(movementDirection);
 
 			//glm::vec3 direction = 3.0f * movementDirection;
-			glm::vec3 direction = cameraDirection + movementDirection;
+			glm::vec3 direction = cameraDirection + 0.3f*movementDirection;
 			direction.y = shootingLift;
 			direction = glm::normalize(direction);
 			
