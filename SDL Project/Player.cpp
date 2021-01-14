@@ -7,11 +7,13 @@
 #include <GL\glew.h>
 #include <iostream>
 #include <string>
+#include "ResourceManager.h"
 
 
 
 
 void Player::Load(){
+		model.SetShader(ResourceManager::GetShader());
 		model.Load("player");
 		ball.Load();
 		position = glm::vec3(0,2,0);
@@ -31,10 +33,10 @@ void Player::Load(){
 
 
 
-void Player::Render(std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
+void Player::Render() {
 
-	ball.Render(camera, lights, pointLights);
-	model.Render(camera, lights, pointLights);
+	ball.Render(camera);
+	model.Render(camera);
 
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)

@@ -20,16 +20,16 @@ public:
 
 	float specularAmount;
 	float diffuseAmount;
+	Shader* shader;
 
 	unsigned int VAO;
 	unsigned int VBO;
 	unsigned int EBO; //element buffer object -> indices
-	Shader shader;
 	unsigned int texture;
 
 	Model():specularAmount(1), diffuseAmount(1), position(0), rotation(0){}
 
-	void Render(Camera& camera, std::vector<Light>& lights, std::vector<Light_Point>& pointLights ){
+	void Render(Camera& camera){
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, position);
@@ -41,39 +41,15 @@ public:
 		glm::mat4 normalMatrix = glm::inverseTranspose(model);
 		glm::mat4 viewMatrix = camera.projectionMatrix * camera.viewMatrix * model;;
 
-		shader.Use();
-		/////////////////////LIGHTSSS
+		shader->Use();
 
-		shader.SetAttribute( "nLights", int(lights.size()));
-		for (int i = 0; i < lights.size(); i++)
-		{
-			std::string number = std::to_string(i);
-			shader.SetAttribute ("lights[" + number + "].color",lights[i].color);
-			shader.SetAttribute ("lights[" + number + "].direction",lights[i].direction);
-			shader.SetAttribute ("lights[" + number + "].intensity",lights[i].intensity);
-		}
-		
-		shader.SetAttribute("nPointLights", int(pointLights.size()));
-
-		for (int i = 0; i < pointLights.size(); i++) {
-			std::string number = std::to_string(i);
-			shader.SetAttribute("pointLights[" + number + "].color", pointLights[i].color);
-			shader.SetAttribute("pointLights[" + number + "].falloffLinear", pointLights[i].falloffLinear);
-			shader.SetAttribute("pointLights[" + number + "].falloffQuadratic", pointLights[i].falloffQuadratic);
-			shader.SetAttribute("pointLights[" + number + "].intensity", pointLights[i].intensity);
-			shader.SetAttribute("pointLights[" + number + "].position", pointLights[i].position);
-
-		}
-
-
-		////////////////////
-		shader.SetAttribute("viewMatrix", viewMatrix);
-		shader.SetAttribute("normalMatrix", normalMatrix);
-		shader.SetAttribute("modelMatrix", normalMatrix);
-
-		shader.SetAttribute("cameraPosition", camera.position);
-		shader.SetAttribute("specularAmount", specularAmount);
-		shader.SetAttribute("diffuseAmount", diffuseAmount);
+		shader->SetAttribute("viewMatrix", viewMatrix);
+		shader->SetAttribute("normalMatrix", normalMatrix);
+		shader->SetAttribute("modelMatrix", normalMatrix);
+			  
+		shader->SetAttribute("cameraPosition", camera.position);
+		shader->SetAttribute("specularAmount", specularAmount);
+		shader->SetAttribute("diffuseAmount", diffuseAmount);
 
 
 		glActiveTexture(GL_TEXTURE0);
@@ -87,10 +63,13 @@ public:
 	}
 
 
+	void SetShader(Shader* shader) { this->shader = shader; }
 
 	void Load(std::string modelName) {
+
+
 		mesh.Import(modelName + ".obj");
-	
+
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 
@@ -144,8 +123,6 @@ public:
 	}
 
 private:
-
-
 
 	bool LoadTexture(std::string textureFileName) {
 		int width, height, nrChannels;

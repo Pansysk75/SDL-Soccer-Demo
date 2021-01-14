@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include "Model.h"
+#include "ResourceManager.h"
 
 
 class Goalpost {
@@ -16,9 +17,11 @@ class Goalpost {
 
 public:
 	void Load() {
+		goalpostModel.SetShader(ResourceManager::GetShader());
 		goalpostModel.Load("field\\goalpost");
 		goalpostModel.specularAmount = 0.0f;
 		goalpostModel.diffuseAmount = 1.0f;
+		netModel.SetShader(ResourceManager::GetShader());
 		netModel.Load("field\\goalpost_net");
 		netModel.specularAmount = 0.0f;
 		netModel.diffuseAmount = 1.0f; 
@@ -27,11 +30,11 @@ public:
 		collisionMesh.Import("Player_CollisionMesh");
 	}
 	void Update(float dt);
-	void Render(Camera& camera, std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
-		goalpostModel.Render(camera, lights, pointLights);
+	void Render(Camera& camera) {
+		goalpostModel.Render(camera);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		netModel.Render(camera, lights, pointLights);
+		netModel.Render(camera);
 		glDisable(GL_BLEND);
 	}
 

@@ -36,7 +36,7 @@ public:
 	Soccerball ball;
 	void Load();
 	void Update(float dt);
-	void Render(std::vector<Light>& lights, std::vector<Light_Point>& pointLights);
+	void Render();
 	Camera& GetCamera() { return camera; }
 	
 };

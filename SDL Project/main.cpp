@@ -10,7 +10,7 @@
 
 #include "Mouse.h"
 #include "Scene.h"
-
+#include "ResourceManager.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 1920/2;
@@ -27,7 +27,7 @@ int main(int argc, char* args[])
     
    
     //Create window
-    SDL_Window* window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("SDL Geim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
      if (window == NULL) printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
      SDL_GL_CreateContext(window);
      SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -35,6 +35,8 @@ int main(int argc, char* args[])
 
      if (glewInit() != GLEW_OK) printf("Couldn't init glew");
 
+     //INITIALIZE GLOBAL STUFF
+     ResourceManager::Initialize();
 
 
      Scene scene;

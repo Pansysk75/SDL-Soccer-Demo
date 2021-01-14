@@ -3,6 +3,8 @@
 #include <glm/vec3.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include "Light.h"
 
 #include <iostream>
 
@@ -37,6 +39,34 @@ public:
 	void SetAttribute(std::string attributeName, glm::mat4 matrix) {
 		glUseProgram(ID);
 		glUniformMatrix4fv(GetUniformLocation(attributeName), 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+
+
+	void SetLights(std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
+		Shader* shader = this;
+		shader->Use();
+
+		shader->SetAttribute("nLights", int(lights.size()));
+		for (int i = 0; i < lights.size(); i++)
+		{
+			std::string number = std::to_string(i);
+			shader->SetAttribute("lights[" + number + "].color", lights[i].color);
+			shader->SetAttribute("lights[" + number + "].direction", lights[i].direction);
+			shader->SetAttribute("lights[" + number + "].intensity", lights[i].intensity);
+		}
+
+		shader->SetAttribute("nPointLights", int(pointLights.size()));
+
+		for (int i = 0; i < pointLights.size(); i++) {
+			std::string number = std::to_string(i);
+			shader->SetAttribute("pointLights[" + number + "].color", pointLights[i].color);
+			shader->SetAttribute("pointLights[" + number + "].falloffLinear", pointLights[i].falloffLinear);
+			shader->SetAttribute("pointLights[" + number + "].falloffQuadratic", pointLights[i].falloffQuadratic);
+			shader->SetAttribute("pointLights[" + number + "].intensity", pointLights[i].intensity);
+			shader->SetAttribute("pointLights[" + number + "].position", pointLights[i].position);
+
+		}
 	}
 
 

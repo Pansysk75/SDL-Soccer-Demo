@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include "Model.h"
+#include "ResourceManager.h"
 
 class Soccerball {
 
@@ -18,6 +19,7 @@ public:
 
 
 	void Load() {
+		model.SetShader(ResourceManager::GetShader());
 		model.Load("soccerball");
 		model.specularAmount = 0.1f;
 		model.diffuseAmount = 1.0f;
@@ -37,7 +39,7 @@ public:
 		model.position = position;
 		model.rotation = rotation;
 	}
-	void Render(Camera& camera, std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
-		model.Render(camera, lights, pointLights);
+	void Render(Camera& camera) {
+		model.Render(camera);
 	}
 };

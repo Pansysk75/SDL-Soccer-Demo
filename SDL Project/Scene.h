@@ -5,8 +5,11 @@
 #include "Field.h"
 #include "Goalpost.h"
 #include "Player.h"
+#include "Shader.h"
 
 class Scene {
+
+    Shader* shader;
 
 	Skybox skybox;
 	std::vector<Light> lights;
@@ -16,9 +19,12 @@ class Scene {
     Goalpost goalpost2;
     Field field;
 
+
     public:
 
     void Load() {
+        
+        shader = ResourceManager::GetShader();
         skybox.Load();
         player.Load();
         field.Load();
@@ -33,6 +39,8 @@ class Scene {
         lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(1.0f, -0.5f, -1.0f), 0.2f));
         lights.push_back(Light(glm::vec3(0.7f, 0.7f, 1.0f), glm::vec3(0.4f, -0.7f, -0.2f), 0.2f));
         pointLights.push_back(Light_Point());
+        shader->SetLights(lights, pointLights);
+
 
     }
 
@@ -41,12 +49,15 @@ class Scene {
         pointLights[0].position = player.ball.position;
     }
 
+
+
     void Render() {
+        //shader->SetLights(lights, pointLights);
         skybox.Render(player.GetCamera());
-        player.Render(lights,pointLights);
-        field.Render(player.GetCamera(), lights,pointLights);
-        goalpost1.Render(player.GetCamera(), lights,pointLights);
-        goalpost2.Render(player.GetCamera(), lights,pointLights);
+        player.Render();
+        field.Render(player.GetCamera());
+        goalpost1.Render(player.GetCamera());
+        goalpost2.Render(player.GetCamera());
 
     }
 

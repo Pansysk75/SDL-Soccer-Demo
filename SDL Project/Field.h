@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include "Model.h"
+#include "ResourceManager.h"
 
 class Field
 {
@@ -14,6 +15,7 @@ class Field
 
 public:
 	void Load() {
+		model.SetShader(ResourceManager::GetShader());
 		model.Load("field\\field");
 		model.specularAmount = 0.1f;
 		model.diffuseAmount = 1.0f;
@@ -22,8 +24,8 @@ public:
 		collisionMesh.Import("Player_CollisionMesh");
 	}
 	void Update(float dt);
-	void Render(Camera& camera, std::vector<Light>& lights, std::vector<Light_Point>& pointLights) {
-		model.Render(camera, lights, pointLights);
+	void Render(Camera& camera) {
+		model.Render(camera);
 	}
 };
 
