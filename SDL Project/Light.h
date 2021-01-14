@@ -11,8 +11,8 @@ struct Light_Point {
 	Light_Point()
 		:position(0.0f),
 		color(1.0f),
-		falloffLinear(0.2f),
-		falloffQuadratic(0.1f),
+		falloffLinear(1.0f),
+		falloffQuadratic(0.4f),
 		intensity(1.0f)
 	{}
 };
