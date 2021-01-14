@@ -47,12 +47,12 @@ class Scene {
     void Update(float dt){
         player.Update(dt);
         pointLights[0].position = player.ball.position;
+        shader->SetLights(lights, pointLights);
     }
 
 
 
     void Render() {
-        //shader->SetLights(lights, pointLights);
         skybox.Render(player.GetCamera());
         player.Render();
         field.Render(player.GetCamera());
